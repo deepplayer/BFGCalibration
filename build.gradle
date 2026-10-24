@@ -1,0 +1,17 @@
+
+plugins {
+alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.jetbrains.kotlin.android) apply false
+    alias(libs.plugins.android.library) apply false
+}
+
+ext {
+    compileSdkVersion = 35
+    targetSdkVersion = 37
+
+    minSdk = 31
+    versionCode = 535
+    versionName = "5.0.35"
+    xVersion = '1.1.0'
+    hiddenApiBypass = '4.3'
+}

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- The acknowledgement stays outside the scroll area so it is always tappable. -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/confirm_write_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fadeScrollbars="false"
+        android:fillViewport="false"
+        android:overScrollMode="ifContentScrolls"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingTop="18dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_ninebot_info"
+                android:paddingStart="11dp"
+                android:paddingTop="5dp"
+                android:paddingEnd="11dp"
+                android:paddingBottom="5dp"
+                android:text="写入前确认"
+                android:textColor="@color/ninebot_blue"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/confirm_write_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="确认修改容量档位"
+                android:textColor="@color/ninebot_text"
+                android:textSize="21sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/confirm_write_vehicle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="当前车辆"
+                android:textAppearance="@style/TextAppearance.BlackBox.Ninebot.Muted" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.BlackBox.Ninebot.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="13dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="12dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="当前参数"
+                            android:textAppearance="@style/TextAppearance.BlackBox.Ninebot.Muted" />
+
+                        <TextView
+                            android:id="@+id/confirm_write_before"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:gravity="center"
+                            android:textColor="@color/ninebot_text"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="36dp"
+                        android:layout_height="42dp"
+                        android:gravity="center"
+                        android:text="→"
+                        android:textColor="@color/ninebot_blue"
+                        android:textSize="22sp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="目标参数"
+                            android:textAppearance="@style/TextAppearance.BlackBox.Ninebot.Muted" />
+
+                        <TextView
+                            android:id="@+id/confirm_write_after"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:gravity="center"
+                            android:textColor="@color/ninebot_blue"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="9dp"
+                android:background="@drawable/bg_ninebot_good_badge"
+                android:padding="10dp"
+                android:text="✓ 原参数已备份，可随时恢复"
+                android:textColor="@color/ninebot_good"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="9dp"
+                android:text="本次仅向计量模块写入所选电压与容量档位。写入后会自动多次回读；整车断电后可能恢复为仪表保存的原配置。"
+                android:textAppearance="@style/TextAppearance.BlackBox.Ninebot.Muted" />
+
+            <TextView
+                android:id="@+id/confirm_write_compat_warning"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="9dp"
+                android:background="@drawable/bg_ninebot_warning"
+                android:lineSpacingExtra="2dp"
+                android:padding="11dp"
+                android:textColor="@color/ninebot_warning"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="9dp"
+                android:background="@drawable/bg_ninebot_error"
+                android:lineSpacingExtra="2dp"
+                android:padding="11dp"
+                android:text="@string/ninebot_write_disclaimer"
+                android:textColor="@color/ninebot_danger" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/confirm_write_disclaimer_check"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="2dp"
+        android:minHeight="48dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:text="@string/ninebot_write_disclaimer_check"
+        android:textColor="@color/ninebot_text" />
+</LinearLayout>

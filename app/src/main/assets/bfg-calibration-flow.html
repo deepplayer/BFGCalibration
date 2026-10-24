@@ -1,0 +1,923 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"></head><body>
+<div id="bfg-ui-prototype">
+  <div class="nb-stage">
+    <div class="nb-preview-nav" aria-label="快速查看页面">
+      <button type="button" data-preview="home">首页</button>
+      <button type="button" data-preview="review">信息核对</button>
+      <button type="button" data-preview="write">参数写入</button>
+      <button type="button" data-preview="success">成功状态</button>
+      <button type="button" data-preview="failure">失败状态</button>
+    </div>
+
+    <section class="nb-phone" aria-label="BFG 电量校准新版手机界面原型">
+      <div class="nb-statusbar" aria-hidden="true">
+        <span>9:41</span>
+        <span class="nb-status-icons"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span>
+      </div>
+      <div id="nb-screen" class="nb-screen" aria-live="polite"></div>
+    </section>
+  </div>
+</div>
+
+<style>
+  #bfg-ui-prototype {
+    --nb-accent: #2f7cf6;
+    --nb-radius: 22px;
+    --nb-bg: #f4f7fb;
+    --nb-surface: #ffffff;
+    --nb-surface-2: #eef4fd;
+    --nb-surface-3: #f8fafc;
+    --nb-text: #12213c;
+    --nb-muted: #64748b;
+    --nb-line: #dce5f0;
+    --nb-success: #149a62;
+    --nb-success-bg: #e9f8f1;
+    --nb-warning: #bd6b0b;
+    --nb-warning-bg: #fff5e6;
+    --nb-danger: #d44747;
+    --nb-danger-bg: #fff0f0;
+    --nb-shadow: 0 22px 70px rgba(33, 56, 91, .17);
+    color-scheme: light dark;
+    width: 100%;
+  }
+  #bfg-ui-prototype[data-dark="true"] {
+    --nb-bg: #090f1b;
+    --nb-surface: #111a2a;
+    --nb-surface-2: #17243a;
+    --nb-surface-3: #0d1523;
+    --nb-text: #edf4ff;
+    --nb-muted: #9cadc7;
+    --nb-line: #293750;
+    --nb-success: #42d392;
+    --nb-success-bg: #103325;
+    --nb-warning: #ffb65b;
+    --nb-warning-bg: #382611;
+    --nb-danger: #ff7777;
+    --nb-danger-bg: #3a171b;
+    --nb-shadow: 0 24px 80px rgba(0, 0, 0, .48);
+  }
+  #bfg-ui-prototype * { box-sizing: border-box; }
+  #bfg-ui-prototype .nb-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+  }
+  #bfg-ui-prototype .nb-preview-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  #bfg-ui-prototype .nb-preview-nav button {
+    min-height: 36px;
+    padding: 7px 13px;
+    border: 1px solid var(--nb-line);
+    border-radius: 999px;
+    background: var(--nb-surface);
+    color: var(--nb-muted);
+    font: inherit;
+  }
+  #bfg-ui-prototype .nb-preview-nav button.is-active {
+    background: var(--nb-text);
+    border-color: var(--nb-text);
+    color: var(--nb-bg);
+  }
+  #bfg-ui-prototype .nb-phone {
+    width: min(100%, 430px);
+    min-height: 790px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border-radius: 38px;
+    background: var(--nb-bg);
+    color: var(--nb-text);
+    box-shadow: var(--nb-shadow);
+    border: 1px solid var(--nb-line);
+    font-family: Inter, "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  }
+  #bfg-ui-prototype .nb-statusbar {
+    height: 38px;
+    flex: 0 0 38px;
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    padding: 0 22px 7px;
+    background: var(--nb-bg);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  #bfg-ui-prototype .nb-status-icons { display: inline-flex; gap: 5px; align-items: center; }
+  #bfg-ui-prototype .nb-status-icons svg { width: 15px; height: 15px; }
+  #bfg-ui-prototype .nb-screen { flex: 1; display: flex; min-height: 752px; }
+  #bfg-ui-prototype .nb-page { width: 100%; min-height: 752px; display: flex; flex-direction: column; }
+  #bfg-ui-prototype .nb-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 66px;
+    padding: 12px 18px;
+    background: var(--nb-bg);
+  }
+  #bfg-ui-prototype .nb-header-copy { min-width: 0; flex: 1; }
+  #bfg-ui-prototype .nb-title { margin: 0; font-size: 22px; line-height: 1.2; font-weight: 500; letter-spacing: -.02em; }
+  #bfg-ui-prototype .nb-subtitle { margin: 4px 0 0; color: var(--nb-muted); font-size: 13px; line-height: 1.35; }
+  #bfg-ui-prototype .nb-icon-btn {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 42px;
+    border: 0;
+    border-radius: 14px;
+    background: var(--nb-surface-2);
+    color: var(--nb-text);
+  }
+  #bfg-ui-prototype .nb-icon-btn svg { width: 20px; height: 20px; }
+  #bfg-ui-prototype .nb-settings-btn { width: auto; min-width: 70px; flex-basis: auto; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0 8px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  #bfg-ui-prototype .nb-content { flex: 1; padding: 8px 18px 20px; }
+  #bfg-ui-prototype .nb-section { margin-top: 18px; }
+  #bfg-ui-prototype .nb-section:first-child { margin-top: 0; }
+  #bfg-ui-prototype .nb-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 2px 10px; }
+  #bfg-ui-prototype .nb-section-title { margin: 0; font-size: 16px; font-weight: 500; }
+  #bfg-ui-prototype .nb-section-note { margin: 0; font-size: 12px; color: var(--nb-muted); }
+  #bfg-ui-prototype .nb-card {
+    border-radius: var(--nb-radius);
+    background: var(--nb-surface);
+    border: 1px solid var(--nb-line);
+    padding: 16px;
+  }
+  #bfg-ui-prototype .nb-vehicle-card { display: flex; align-items: center; gap: 13px; }
+  #bfg-ui-prototype .nb-vehicle-icon {
+    width: 48px; height: 48px; flex: 0 0 48px; display: grid; place-items: center;
+    border-radius: 16px; background: var(--nb-surface-2); color: var(--nb-accent);
+  }
+  #bfg-ui-prototype .nb-vehicle-icon svg { width: 23px; height: 23px; }
+  #bfg-ui-prototype .nb-grow { flex: 1; min-width: 0; }
+  #bfg-ui-prototype .nb-label { color: var(--nb-muted); font-size: 12px; line-height: 1.4; }
+  #bfg-ui-prototype .nb-value { margin-top: 3px; font-size: 17px; line-height: 1.3; font-weight: 500; }
+  #bfg-ui-prototype .nb-badge {
+    display: inline-flex; align-items: center; gap: 5px; padding: 6px 9px; border-radius: 999px;
+    font-size: 12px; color: var(--nb-success); background: var(--nb-success-bg);
+  }
+  #bfg-ui-prototype .nb-badge svg { width: 14px; height: 14px; }
+  #bfg-ui-prototype .nb-action-stack { display: grid; gap: 12px; }
+  #bfg-ui-prototype .nb-action {
+    min-height: 94px; width: 100%; display: flex; align-items: center; gap: 14px; text-align: left;
+    padding: 16px; border-radius: var(--nb-radius); border: 1px solid var(--nb-line);
+    background: var(--nb-surface); color: var(--nb-text); font: inherit;
+  }
+  #bfg-ui-prototype .nb-action.is-primary { background: var(--nb-accent); color: #fff; border-color: transparent; }
+  #bfg-ui-prototype .nb-action-icon {
+    width: 46px; height: 46px; flex: 0 0 46px; display: grid; place-items: center;
+    border-radius: 15px; background: rgba(47, 124, 246, .12);
+  }
+  #bfg-ui-prototype .nb-action-icon svg { width: 23px; height: 23px; }
+  #bfg-ui-prototype .nb-action-copy { flex: 1; }
+  #bfg-ui-prototype .nb-action-title { display: block; font-size: 17px; font-weight: 500; }
+  #bfg-ui-prototype .nb-action-desc { display: block; margin-top: 4px; color: inherit; opacity: .76; font-size: 12px; line-height: 1.45; }
+  #bfg-ui-prototype .nb-action > svg { width: 18px; height: 18px; flex: 0 0 18px; }
+  #bfg-ui-prototype .nb-tip {
+    display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; padding: 12px 13px;
+    border-radius: 16px; background: var(--nb-surface-2); color: var(--nb-muted); font-size: 12px; line-height: 1.5;
+  }
+  #bfg-ui-prototype .nb-tip svg { width: 17px; height: 17px; flex: 0 0 17px; margin-top: 1px; }
+  #bfg-ui-prototype .nb-bottom-nav {
+    min-height: 66px; display: grid; grid-template-columns: repeat(3, 1fr); padding: 7px 14px 10px;
+    border-top: 1px solid var(--nb-line); background: var(--nb-surface);
+  }
+  #bfg-ui-prototype .nb-bottom-nav button {
+    border: 0; background: transparent; color: var(--nb-muted); display: grid; place-items: center;
+    align-content: center; gap: 3px; font: inherit; font-size: 11px;
+  }
+  #bfg-ui-prototype .nb-bottom-nav button.is-active { color: var(--nb-accent); }
+  #bfg-ui-prototype .nb-bottom-nav svg { width: 20px; height: 20px; }
+  #bfg-ui-prototype .nb-list { display: grid; gap: 10px; }
+  #bfg-ui-prototype .nb-list-item {
+    width: 100%; display: flex; align-items: center; gap: 12px; padding: 15px; text-align: left;
+    border: 1px solid var(--nb-line); border-radius: 18px; background: var(--nb-surface); color: var(--nb-text); font: inherit;
+  }
+  #bfg-ui-prototype .nb-list-item > svg { width: 18px; height: 18px; color: var(--nb-muted); }
+  #bfg-ui-prototype .nb-primary, #bfg-ui-prototype .nb-secondary, #bfg-ui-prototype .nb-danger-btn {
+    min-height: 52px; width: 100%; border-radius: 17px; padding: 13px 16px; font: inherit; font-weight: 500;
+  }
+  #bfg-ui-prototype .nb-primary { border: 0; background: var(--nb-accent); color: #fff; }
+  #bfg-ui-prototype .nb-primary:disabled { background: #aeb9ca; color: #fff; cursor: not-allowed; }
+  #bfg-ui-prototype .nb-secondary { border: 1px solid var(--nb-line); background: var(--nb-surface); color: var(--nb-text); }
+  #bfg-ui-prototype .nb-danger-btn { border: 0; background: var(--nb-danger); color: #fff; }
+  #bfg-ui-prototype .nb-btn-row { display: grid; grid-template-columns: 1fr 1.35fr; gap: 10px; margin-top: 14px; }
+  #bfg-ui-prototype .nb-inline-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 13px; }
+  #bfg-ui-prototype .nb-inline-actions .nb-primary,
+  #bfg-ui-prototype .nb-inline-actions .nb-secondary { min-height: 46px; padding: 10px 11px; font-size: 13px; }
+  #bfg-ui-prototype .nb-hero-check {
+    width: 70px; height: 70px; margin: 12px auto 18px; display: grid; place-items: center;
+    border-radius: 50%; background: var(--nb-success-bg); color: var(--nb-success);
+  }
+  #bfg-ui-prototype .nb-hero-check svg { width: 34px; height: 34px; }
+  #bfg-ui-prototype .nb-center { text-align: center; }
+  #bfg-ui-prototype .nb-center p { margin: 7px 0 0; color: var(--nb-muted); font-size: 13px; line-height: 1.5; }
+  #bfg-ui-prototype .nb-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  #bfg-ui-prototype .nb-metric { padding: 14px 10px; border-radius: 18px; background: var(--nb-surface-3); text-align: center; }
+  #bfg-ui-prototype .nb-metric .nb-label { min-height: 34px; }
+  #bfg-ui-prototype .nb-metric .nb-value { font-size: 19px; }
+  #bfg-ui-prototype .nb-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; overflow: hidden; padding: 0; }
+  #bfg-ui-prototype .nb-compare-col { padding: 15px; background: var(--nb-surface); }
+  #bfg-ui-prototype .nb-compare-col + .nb-compare-col { border-left: 1px solid var(--nb-line); }
+  #bfg-ui-prototype .nb-compare-row { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: 13px; }
+  #bfg-ui-prototype .nb-compare-row span:first-child { color: var(--nb-muted); }
+  #bfg-ui-prototype .nb-info-list { display: grid; gap: 0; }
+  #bfg-ui-prototype .nb-info-row { display: flex; justify-content: space-between; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--nb-line); font-size: 13px; }
+  #bfg-ui-prototype .nb-info-row:last-child { border-bottom: 0; }
+  #bfg-ui-prototype .nb-info-row span:first-child { color: var(--nb-muted); }
+  #bfg-ui-prototype .nb-alert { display: flex; gap: 11px; align-items: flex-start; padding: 13px; border-radius: 17px; font-size: 13px; line-height: 1.5; }
+  #bfg-ui-prototype .nb-alert svg { width: 18px; height: 18px; flex: 0 0 18px; margin-top: 1px; }
+  #bfg-ui-prototype .nb-alert.success { color: var(--nb-success); background: var(--nb-success-bg); }
+  #bfg-ui-prototype .nb-alert.warning { color: var(--nb-warning); background: var(--nb-warning-bg); }
+  #bfg-ui-prototype .nb-alert.danger { color: var(--nb-danger); background: var(--nb-danger-bg); }
+  #bfg-ui-prototype .nb-mode-list { display: grid; gap: 11px; }
+  #bfg-ui-prototype .nb-mode {
+    display: flex; gap: 13px; width: 100%; padding: 15px; text-align: left; border-radius: 19px;
+    border: 1px solid var(--nb-line); background: var(--nb-surface); color: var(--nb-text); font: inherit;
+  }
+  #bfg-ui-prototype .nb-mode.is-selected { border-color: var(--nb-accent); background: var(--nb-surface-2); }
+  #bfg-ui-prototype .nb-mode-dot {
+    width: 22px; height: 22px; flex: 0 0 22px; border: 2px solid var(--nb-line); border-radius: 50%; margin-top: 1px;
+  }
+  #bfg-ui-prototype .nb-mode.is-selected .nb-mode-dot { border: 7px solid var(--nb-accent); }
+  #bfg-ui-prototype .nb-mode-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-weight: 500; }
+  #bfg-ui-prototype .nb-mode-desc { margin-top: 5px; color: var(--nb-muted); font-size: 12px; line-height: 1.5; }
+  #bfg-ui-prototype .nb-lifetime { font-size: 11px; padding: 4px 7px; border-radius: 999px; color: var(--nb-success); background: var(--nb-success-bg); white-space: nowrap; }
+  #bfg-ui-prototype .nb-temporary { font-size: 11px; padding: 4px 7px; border-radius: 999px; color: var(--nb-warning); background: var(--nb-warning-bg); white-space: nowrap; }
+  #bfg-ui-prototype .nb-voltages { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  #bfg-ui-prototype .nb-capacities { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  #bfg-ui-prototype .nb-capacity {
+    min-height: 46px; border: 1px solid var(--nb-line); border-radius: 14px; background: var(--nb-surface); color: var(--nb-text); font: inherit;
+  }
+  #bfg-ui-prototype .nb-voltage {
+    min-height: 52px; border: 1px solid var(--nb-line); border-radius: 15px; background: var(--nb-surface); color: var(--nb-text); font: inherit; font-weight: 500;
+  }
+  #bfg-ui-prototype .nb-voltage.is-selected,
+  #bfg-ui-prototype .nb-capacity.is-selected { color: #fff; background: var(--nb-accent); border-color: var(--nb-accent); }
+  #bfg-ui-prototype .nb-summary { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  #bfg-ui-prototype .nb-summary strong { font-size: 18px; }
+  #bfg-ui-prototype .nb-chevron { color: var(--nb-accent); }
+  #bfg-ui-prototype .nb-progress-ring {
+    width: 70px; height: 70px; margin: 34px auto 20px; border-radius: 50%;
+    border: 6px solid var(--nb-line); border-top-color: var(--nb-accent); animation: nb-spin .9s linear infinite;
+  }
+  #bfg-ui-prototype .nb-modal-layer {
+    position: absolute; inset: 0; display: flex; align-items: flex-end; padding: 16px; z-index: 4;
+    background: rgba(4, 10, 20, .55); border-radius: 37px;
+  }
+  #bfg-ui-prototype .nb-modal {
+    width: 100%; padding: 20px; border-radius: 25px; background: var(--nb-surface); color: var(--nb-text);
+    box-shadow: 0 16px 60px rgba(0,0,0,.28); max-height: calc(100dvh - 32px);
+    overflow-y: auto; overscroll-behavior: contain; box-sizing: border-box;
+  }
+  #bfg-ui-prototype .nb-modal-icon { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 15px; background: var(--nb-warning-bg); color: var(--nb-warning); }
+  #bfg-ui-prototype .nb-modal h3 { margin: 15px 0 7px; font-size: 20px; font-weight: 500; }
+  #bfg-ui-prototype .nb-modal p { margin: 0; color: var(--nb-muted); font-size: 13px; line-height: 1.55; }
+  #bfg-ui-prototype .nb-modal .nb-card { margin-top: 14px; background: var(--nb-surface-3); }
+  #bfg-ui-prototype .nb-fw-list { margin-top: 16px; border: 1px solid var(--nb-line); border-radius: 16px; overflow: hidden; }
+  #bfg-ui-prototype .nb-fw-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; align-items: center; padding: 12px; font-size: 12px; }
+  #bfg-ui-prototype .nb-fw-row + .nb-fw-row { border-top: 1px solid var(--nb-line); }
+  #bfg-ui-prototype .nb-fw-row span { color: var(--nb-muted); }
+  #bfg-ui-prototype .nb-fw-row strong { color: var(--nb-text); font-weight: 600; }
+  #bfg-ui-prototype .nb-fw-row em { color: var(--nb-danger); font-style: normal; font-weight: 600; }
+  #bfg-ui-prototype .nb-fw-row em.is-match { color: var(--nb-success); }
+  #bfg-ui-prototype .nb-page-wrap { position: relative; width: 100%; }
+  @keyframes nb-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { #bfg-ui-prototype .nb-progress-ring { animation: none; } }
+  @media (max-width: 370px) {
+    #bfg-ui-prototype .nb-phone { border-radius: 28px; }
+    #bfg-ui-prototype .nb-content { padding-left: 14px; padding-right: 14px; }
+    #bfg-ui-prototype .nb-grid-3 { gap: 6px; }
+    #bfg-ui-prototype .nb-metric { padding-left: 6px; padding-right: 6px; }
+    #bfg-ui-prototype .nb-capacities { grid-template-columns: repeat(3, 1fr); }
+    #bfg-ui-prototype .nb-modal-layer { border-radius: 27px; }
+  }
+  html, body { margin: 0; min-height: 100%; background: #f4f7fb; }
+  #bfg-ui-prototype { color-scheme: light; }
+  #bfg-ui-prototype[data-dark="true"] { color-scheme: dark; }
+  #bfg-ui-prototype .nb-stage { display: block; }
+  #bfg-ui-prototype .nb-preview-nav, #bfg-ui-prototype .nb-statusbar { display: none; }
+  #bfg-ui-prototype .nb-phone { width: 100%; min-height: 100dvh; border: 0; border-radius: 0; box-shadow: none; }
+  #bfg-ui-prototype .nb-screen, #bfg-ui-prototype .nb-page { min-height: 100dvh; }
+  #bfg-ui-prototype .nb-page-wrap { min-height: 100dvh; }
+  #bfg-ui-prototype .nb-page { min-height: 100dvh; }
+  #bfg-ui-prototype .nb-content { overflow-y: auto; }
+  #bfg-ui-prototype .nb-modal-layer { position: fixed; inset: 0; z-index: 20; border-radius: 0; padding: 16px max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+  #bfg-ui-prototype .nb-modal .nb-btn-row { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 20px; }
+  #bfg-ui-prototype .nb-modal .nb-btn-row .nb-primary { grid-row: 1; }
+  #bfg-ui-prototype .nb-modal .nb-btn-row button { width: 100%; min-height: 48px; }
+  #bfg-ui-prototype .nb-mode[disabled], #bfg-ui-prototype .nb-capacity[disabled], #bfg-ui-prototype .nb-secondary[disabled] { opacity: .45; cursor: not-allowed; }
+  #bfg-ui-prototype button { touch-action: manipulation; }
+  #bfg-ui-prototype .nb-voltages, #bfg-ui-prototype .nb-capacities { position: relative; z-index: 2; }
+</style>
+
+<script>
+/* A small offline icon set keeps the original prototype usable inside the APK. */
+globalThis.lucide = {createIcons() {
+  const paths = {
+    'house':'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
+    'bike':'<circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="m15 6-4 0 4 11H5.5l4-8H15m0-3 2-2h3"/>',
+    'bluetooth':'<path d="m7 7 10 10-5 4V3l5 4L7 17"/>',
+    'key-round':'<circle cx="8" cy="15" r="5"/><path d="m11.5 11.5 8-8L22 6l-2 2 2 2-2 2-2-2-2 2"/>',
+    'chevron-left':'<path d="m15 18-6-6 6-6"/>',
+    'chevron-right':'<path d="m9 18 6-6-6-6"/>',
+    'arrow-right':'<path d="M5 12h14m-6-6 6 6-6 6"/>',
+    'settings':'<circle cx="12" cy="12" r="3"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/>',
+    'smartphone':'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/>',
+    'shield-check':'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+    'shield-alert':'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v5m0 3h.01"/>',
+    'triangle-alert':'<path d="m10.3 3.8-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3.2l-8-14a2 2 0 0 0-3.4 0z"/><path d="M12 9v4m0 4h.01"/>',
+    'circle-check':'<circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/>',
+    'circle-x':'<circle cx="12" cy="12" r="10"/><path d="m9 9 6 6m0-6-6 6"/>',
+    'info':'<circle cx="12" cy="12" r="10"/><path d="M12 11v5m0-8h.01"/>',
+    'power':'<path d="M12 2v10m6.4-6.4a9 9 0 1 1-12.8 0"/>',
+    'package-plus':'<path d="m12 2 9 5-9 5-9-5 9-5zM3 7v10l9 5 9-5V7M12 12v10m5-8h6m-3-3v6"/>',
+    'package-open':'<path d="M3 8 12 3l9 5-9 5zM3 8v9l9 5 9-5V8M12 13v9"/>',
+    'log-in':'<path d="M10 17l5-5-5-5m5 5H3m9-9h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/>',
+    'sliders-horizontal':'<path d="M4 7h9m4 0h3M4 17h3m4 0h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
+    'rotate-ccw':'<path d="M3 11a9 9 0 1 0 3-6.7L3 7m0-5v5h5"/>'
+  };
+  document.querySelectorAll('i[data-lucide]').forEach(node => {
+    const name = node.getAttribute('data-lucide');
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 24 24'); svg.setAttribute('fill','none');
+    svg.setAttribute('width','18'); svg.setAttribute('height','18');
+    svg.setAttribute('stroke','currentColor'); svg.setAttribute('stroke-width','1.8');
+    svg.setAttribute('stroke-linecap','round'); svg.setAttribute('stroke-linejoin','round');
+    svg.setAttribute('aria-hidden','true'); svg.innerHTML = paths[name] || paths.info;
+    node.replaceWith(svg);
+  });
+}};
+</script>
+<script>
+(() => {
+  const root = document.getElementById('bfg-ui-prototype');
+  const screen = root.querySelector('#nb-screen');
+  const initial = {};
+  const state = {
+    screen: typeof initial.screen === 'string' ? initial.screen : 'home',
+    path: typeof initial.path === 'string' ? initial.path : 'connect',
+    writeType: initial.writeType === 'dashboard' ? 'dashboard' : 'meter',
+    voltage: [48, 60, 72].includes(Number(initial.voltage)) ? Number(initial.voltage) : 60,
+    capacity: Number(initial.capacity) || 26,
+    officialImported: initial.officialImported === true, rootMode: false,
+    vehicleSn: '', vehicleModel: '', vehicles: [], connected: false,
+    soc: '--', batteryVoltage: '--', remainingCapacity: '--',
+    dashboardVoltage: '--', dashboardCapacity: '--',
+    meterVoltage: '--', meterCapacity: '--', dashboardFirmware: '--',
+    colorDisplayFirmware: '--', centreFirmware: '--', meterFirmware: '--',
+    busyMessage: '', errorMessage: '', writeSupported: false,
+    pairScanning: false, pairScanSeconds: 0, writeStage: 'precheck',
+    firstBackup: '尚未建立', recentBackup: '尚未写入',
+    lastConfirmedTarget: '尚无已确认的写入', firstBackupValid: false,
+    recentBackupValid: false, backupAlternativesDiffer: false,
+    scanModule: '', scanReplies: 0, scanTimeouts: 0,
+    dashboardWriteSupported: false, availableCapacities: [], capacityByVoltage: {},
+    readOnlyVehicle: false,
+    rootFallback: true, appVersion: '', selectedVehicleIndex: 0,
+    result: initial.result === 'failure' ? 'failure' : initial.result === 'success' ? 'success' : null,
+    modal: null,
+    radius: 22,
+    accent: '#2f7cf6',
+    compact: false
+  };
+
+  const icon = name => `<i data-lucide="${name}" aria-hidden="true"></i>`;
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let maskedSn = '尚未选择车辆';
+  const visibleSn = () => state.connected ? maskedSn : (state.vehicleSn || '尚未选择车辆');
+  const nativeAction = (action, value = '') => { if (window.BfgNative) window.BfgNative.action(action, String(value)); };
+  let lastModalVisibility = null;
+
+  function save() { /* State is supplied by the Android bridge. */ }
+
+  function header(title, subtitle, back) {
+    return `<header class="nb-header">
+      ${back ? `<button class="nb-icon-btn" type="button" data-action="back" aria-label="返回">${icon('chevron-left')}</button>` : ''}
+      <div class="nb-header-copy"><h2 class="nb-title">${title}</h2><p class="nb-subtitle">${subtitle}</p></div>
+      ${!back ? `<button class="nb-icon-btn nb-settings-btn" type="button" data-action="settings" aria-label="设置">${icon('sliders-horizontal')}<span>设置</span></button>` : ''}
+    </header>`;
+  }
+
+  function bottomNav(active = 'home') {
+    return `<nav class="nb-bottom-nav" aria-label="底部导航">
+      <button type="button" class="${active === 'home' ? 'is-active' : ''}" data-action="home">${icon('house')}<span>首页</span></button>
+      <button type="button" class="${active === 'vehicle' ? 'is-active' : ''}" data-action="vehicles">${icon('bike')}<span>车辆</span></button>
+      <button type="button" class="${active === 'settings' ? 'is-active' : ''}" data-action="settings">${icon('sliders-horizontal')}<span>设置</span></button>
+    </nav>`;
+  }
+
+  function homeTemplate() {
+    return `<div class="nb-page">
+      ${header('BFG 电量校准', '连接、核对，再进行参数写入', false)}
+      <main class="nb-content">
+        <section class="nb-card nb-vehicle-card">
+          <div class="nb-vehicle-icon">${icon('bike')}</div>
+          <div class="nb-grow"><div class="nb-label">当前车辆</div><div class="nb-value">${esc(visibleSn())}</div><div class="nb-label">${esc(state.vehicleModel || '核对序列号确认车型再连接')}</div></div>
+          <span class="nb-badge">${icon('shield-check')}${state.connected ? '已连接' : '待连接'}</span>
+        </section>
+        <section class="nb-card nb-section">
+          <div class="nb-vehicle-card" style="padding:0;border:0;background:transparent">
+            <div class="nb-vehicle-icon">${icon('smartphone')}</div>
+            <div class="nb-grow"><div class="nb-label">${state.rootMode ? '本机九号数据' : '九号出行'}</div><div class="nb-value">${state.rootMode ? 'Root 模式' : state.officialImported ? '安装包已导入' : '尚未导入'}</div><div class="nb-label">${state.vehicles.length ? `已找到 ${state.vehicles.length} 台车辆` : state.rootMode ? '点击下方按钮读取本机数据' : '登录账号后可读取车辆凭据'}</div></div>
+            <span class="nb-badge">${icon(state.rootMode || state.officialImported ? 'circle-check' : 'package-open')}${state.rootMode ? '本机读取' : state.officialImported ? '可登录' : '未导入'}</span>
+          </div>
+          <div class="nb-inline-actions">
+            <button class="nb-secondary" type="button" data-action="open-import">导入九号出行 APK</button>
+            <button class="nb-primary" type="button" data-action="${state.rootMode ? 'refresh-root' : 'open-login'}">${state.rootMode ? '读取本机车辆' : '登录九号出行'}</button>
+          </div>
+        </section>
+        <section class="nb-section">
+          <div class="nb-section-head"><h3 class="nb-section-title">开始使用</h3><p class="nb-section-note">请选择一种连接方式</p></div>
+          <div class="nb-action-stack">
+            <button class="nb-action is-primary" type="button" data-action="connect-start">
+              <span class="nb-action-icon">${icon('bluetooth')}</span>
+              <span class="nb-action-copy"><span class="nb-action-title">连接车辆</span><span class="nb-action-desc">使用已有凭据连接，成功后核对车辆信息</span></span>${icon('chevron-right')}
+            </button>
+            <button class="nb-action" type="button" data-action="pair-list">
+              <span class="nb-action-icon">${icon('key-round')}</span>
+              <span class="nb-action-copy"><span class="nb-action-title">临时密钥配对</span><span class="nb-action-desc">在车上确认；彻底结束应用后需重新配对</span></span>${icon('chevron-right')}
+            </button>
+          </div>
+          <div class="nb-tip">${icon('info')}<span>普通连接遇到认证无回复时，可选择临时密钥配对，不会自动覆盖原凭据。</span></div>
+        </section>
+      </main>
+      ${bottomNav('home')}
+    </div>`;
+  }
+
+  function vehicleListTemplate() {
+    return `<div class="nb-page">
+      ${header('选择车辆', '核对序列号后再继续', true)}
+      <main class="nb-content">
+        <div class="nb-alert warning">${icon('shield-alert')}<span>仅配对本人拥有或已获授权的车辆。</span></div>
+        ${state.pairScanning ? `<div class="nb-card nb-section" role="status" aria-live="polite" style="display:flex;align-items:center;gap:14px"><div class="nb-progress-ring" style="width:28px;height:28px;flex:0 0 28px;border-width:3px;margin:0" aria-label="正在扫描"></div><div><div class="nb-value">正在搜索附近车辆</div><div class="nb-label">约 ${state.pairScanSeconds} 秒后结束 · 已找到 ${state.vehicles.length} 台</div></div></div>` : ''}
+        ${state.errorMessage ? `<div class="nb-alert danger nb-section">${icon('circle-x')}<span>${esc(state.errorMessage)}</span></div>` : ''}
+        <section class="nb-section">
+          <div class="nb-section-head"><h3 class="nb-section-title">附近车辆</h3><p class="nb-section-note">已找到 ${state.vehicles.length} 台</p></div>
+          <div class="nb-list">
+            ${state.vehicles.map((vehicle, index) => `<button type="button" class="nb-list-item" data-action="pair-select" data-index="${index}"><div class="nb-vehicle-icon">${icon('bike')}</div><div class="nb-grow"><div class="nb-value">${esc(vehicle.sn)}</div><div class="nb-label">${esc(vehicle.detail || '请确认是自己的车辆')}</div></div>${icon('chevron-right')}</button>`).join('')}
+          </div>
+        </section>
+        <button class="nb-secondary" type="button" data-action="pair-list">重新扫描</button>
+      </main>
+      ${bottomNav('vehicle')}
+    </div>`;
+  }
+
+  function vehiclesTemplate() {
+    return `<div class="nb-page">
+      ${header('车辆管理', '核对完整序列号后再连接', true)}
+      <main class="nb-content">
+        <div class="nb-section-head"><h3 class="nb-section-title">我的车辆</h3><p class="nb-section-note">${state.vehicles.length} 台</p></div>
+        <div class="nb-list">
+          ${state.vehicles.length ? state.vehicles.map((vehicle, index) => `<button type="button" class="nb-list-item" data-action="select-vehicle" data-index="${index}"><div class="nb-vehicle-icon">${icon('bike')}</div><div class="nb-grow"><div class="nb-value">${esc(vehicle.sn)}</div><div class="nb-label">${esc(vehicle.detail || '核对序列号确认车型再连接')}</div></div>${index === state.selectedVehicleIndex ? `<span class="nb-badge">当前</span>` : icon('chevron-right')}</button>`).join('') : `<div class="nb-card"><div class="nb-value">尚未找到车辆</div><div class="nb-label">可返回首页导入九号出行，或在设置中启用 Root 模式。</div></div>`}
+        </div>
+        <section class="nb-section"><button class="nb-secondary" type="button" data-action="refresh-vehicles">重新读取车辆</button></section>
+      </main>
+      ${bottomNav('vehicle')}
+    </div>`;
+  }
+
+  function settingsTemplate() {
+    return `<div class="nb-page">
+      ${header('设置', '数据来源与软件说明', true)}
+      <main class="nb-content">
+        <section>
+          <div class="nb-section-head"><h3 class="nb-section-title">数据读取方式</h3></div>
+          <div class="nb-mode-list">
+            <button class="nb-mode ${!state.rootMode ? 'is-selected' : ''}" type="button" data-action="set-root" data-value="false"><span class="nb-mode-dot"></span><span class="nb-grow"><span class="nb-mode-title">导入九号出行 APK</span><span class="nb-mode-desc">在工具独立环境登录后读取车辆数据。</span></span></button>
+            <button class="nb-mode ${state.rootMode ? 'is-selected' : ''}" type="button" data-action="set-root" data-value="true"><span class="nb-mode-dot"></span><span class="nb-grow"><span class="nb-mode-title">Root 读取本机</span><span class="nb-mode-desc">直接读取原机九号出行数据，无需导入。</span></span></button>
+          </div>
+        </section>
+        <section class="nb-card nb-section">
+          <div class="nb-info-list"><div class="nb-info-row"><span>已导入安装包</span><strong>${state.officialImported ? '已导入' : '尚未导入'}</strong></div><div class="nb-info-row"><span>读取失败自动回退</span><strong>${state.rootFallback ? '开启' : '关闭'}</strong></div></div>
+          <div class="nb-inline-actions"><button class="nb-secondary" type="button" data-action="open-import">导入 APK</button><button class="nb-secondary" type="button" data-action="import-root">从本机导入</button></div>
+          <button class="nb-secondary" style="margin-top:10px" type="button" data-action="toggle-fallback">${state.rootFallback ? '关闭' : '开启'}自动回退</button>
+        </section>
+        <section class="nb-card nb-section"><div class="nb-section-head"><h3 class="nb-section-title">参数备份与恢复</h3></div>
+          <div class="nb-label">当前车辆</div><div class="nb-value" style="overflow-wrap:anywhere">${esc(maskedSn)}</div>
+          <div class="nb-label" style="margin-top:12px">首次原参数</div><div class="nb-value" style="overflow-wrap:anywhere">${esc(state.firstBackup)}</div>
+          <div class="nb-label" style="margin-top:12px">最近一次写入前参数</div><div class="nb-value" style="overflow-wrap:anywhere">${esc(state.recentBackup)}</div>
+          <div class="nb-label" style="margin-top:12px">最近已确认的写入目标</div><div class="nb-value" style="overflow-wrap:anywhere">${esc(state.lastConfirmedTarget)}</div>
+          <p class="nb-label">写入前快照保存的是写入前的旧参数，不是这次选择的目标。恢复前会重新连接、读取并核对；备份不保证硬件异常后一定可以恢复。</p>
+          <button class="nb-secondary" style="margin-top:12px" type="button" data-action="restore-first" ${!state.firstBackupValid || state.readOnlyVehicle ? 'disabled' : ''}>恢复首次原参数</button>
+          ${state.backupAlternativesDiffer ? `<button class="nb-secondary" style="margin-top:10px" type="button" data-action="restore-prewrite" ${!state.recentBackupValid || state.readOnlyVehicle ? 'disabled' : ''}>恢复最近写入前参数</button>` : ''}
+        </section>
+        <section class="nb-section"><div class="nb-section-head"><h3 class="nb-section-title">维护与说明</h3></div>
+          <div class="nb-list"><button class="nb-list-item" type="button" data-action="export-diag"><div class="nb-grow"><div class="nb-value">导出最近一次诊断</div><div class="nb-label">仅在需要排查连接问题时使用</div></div>${icon('chevron-right')}</button>
+          <button class="nb-list-item" type="button" data-action="show-license"><div class="nb-grow"><div class="nb-value">关于与使用声明</div><div class="nb-label">版本 ${esc(state.appVersion)}</div></div>${icon('chevron-right')}</button>
+          <button class="nb-list-item" type="button" data-action="clear-data"><div class="nb-grow"><div class="nb-value">清空已导入九号出行数据</div><div class="nb-label">不会清空宿主九号出行的数据</div></div>${icon('chevron-right')}</button></div>
+        </section>
+        <section class="nb-card nb-section"><div class="nb-section-head"><h3 class="nb-section-title">寄存器只读扫描</h3></div>
+          <p class="nb-label">先选择自己的车辆。扫描范围为 0x00–0xFF，只读取并记录响应，不发送写入命令；可能需要数分钟。</p>
+          <button class="nb-secondary" style="margin-top:12px" type="button" data-action="scan-dis">扫描仪表盘寄存器</button>
+          <button class="nb-secondary" style="margin-top:10px" type="button" data-action="scan-bfg">扫描计量模块寄存器</button>
+        </section>
+      </main>
+      ${bottomNav('settings')}
+    </div>`;
+  }
+
+  function readyTemplate(pairing) {
+    const title = pairing ? '准备配对' : '准备连接';
+    const desc = pairing ? '需要在车上按键确认' : '使用已有凭据进行认证';
+    return `<div class="nb-page">
+      ${header(title, desc, true)}
+      <main class="nb-content">
+        ${state.errorMessage && !state.modal ? `<div class="nb-alert danger">${icon('circle-x')}<span>${esc(state.errorMessage)}</span></div>` : ''}
+        <div class="nb-hero-check">${icon(pairing ? 'key-round' : 'bluetooth')}</div>
+        <div class="nb-center"><h2 class="nb-title">车辆已准备好</h2><p>请最后核对车辆信息，再发起${pairing ? '配对' : '连接'}。</p></div>
+        <section class="nb-card nb-section">
+          <div class="nb-info-list">
+            <div class="nb-info-row"><span>车辆序列号</span><strong>${esc(state.vehicleSn)}</strong></div>
+            <div class="nb-info-row"><span>车辆状态</span><strong>已开机</strong></div>
+            <div class="nb-info-row"><span>连接方式</span><strong>${pairing ? '车端确认配对' : '已有凭据认证'}</strong></div>
+          </div>
+        </section>
+        ${pairing ? `<div class="nb-alert warning nb-section">${icon('triangle-alert')}<span>密钥只在本次运行期间有效；彻底结束应用后需重新配对。九号出行可能也需要再次配对。</span></div>` : ''}
+        <section class="nb-section">
+          <button class="nb-primary" type="button" data-action="${pairing ? 'begin-pair' : 'begin-connect'}">${pairing ? '发起配对' : '发起连接'}</button>
+          <button class="nb-secondary" style="margin-top:10px" type="button" data-action="home">取消</button>
+        </section>
+      </main>
+    </div>`;
+  }
+
+  function progressTemplate(pairing) {
+    return `<div class="nb-page">
+      ${header(pairing ? '正在配对' : '正在连接', esc(state.vehicleSn), true)}
+      <main class="nb-content nb-center">
+        <div class="nb-progress-ring" role="progressbar" aria-label="${pairing ? '配对中' : '连接中'}"></div>
+        <h2 class="nb-title">${esc(state.busyMessage || (pairing ? '请在车上按键确认' : '正在验证车辆凭据'))}</h2>
+        <p>${pairing ? '保持车辆开启，确认后会自动读取车辆信息。' : '请勿切换到其他蓝牙应用。'}</p>
+        <div class="nb-card nb-section"><div class="nb-info-list"><div class="nb-info-row"><span>车辆</span><strong>${esc(state.vehicleSn)}</strong></div><div class="nb-info-row"><span>当前步骤</span><strong>${pairing ? '等待车端确认' : '安全认证'}</strong></div></div></div>
+      </main>
+    </div>`;
+  }
+
+  function writeProgressTemplate() {
+    const dash = state.writeType === 'dashboard';
+    const precheck = state.writeStage !== 'writing';
+    return `<div class="nb-page">
+      ${header(precheck ? '正在核对并备份' : '正在写入并回读', `${esc(maskedSn)} · ${state.voltage}V${dash ? '' : ` / ${state.capacity}Ah`}`, true)}
+      <main class="nb-content nb-center">
+        <div class="nb-progress-ring" role="progressbar" aria-label="${precheck ? '核对并备份中' : '写入并回读中'}"></div>
+        <h2 class="nb-title">请保持车辆开启</h2>
+        <p>先重新读取并备份原参数，备份成功后才会写入${dash ? '仪表盘电压配置' : '计量模块电压与容量配置'}。</p>
+        <div class="nb-card nb-section"><div class="nb-info-list"><div class="nb-info-row"><span>写入位置</span><strong>${dash ? '仪表盘' : '计量模块'}</strong></div><div class="nb-info-row"><span>目标电压</span><strong>${state.voltage}V</strong></div>${dash ? '' : `<div class="nb-info-row"><span>目标容量</span><strong>${state.capacity}Ah</strong></div>`}<div class="nb-info-row"><span>当前步骤</span><strong>${esc(state.busyMessage || '等待安全回读')}</strong></div></div></div>
+      </main>
+    </div>`;
+  }
+
+  function postWriteCheckTemplate() {
+    return `<div class="nb-page">
+      ${header('正在核对写入结果', esc(maskedSn), true)}
+      <main class="nb-content nb-center">
+        <div class="nb-progress-ring" role="progressbar" aria-label="二次核对中"></div>
+        <h2 class="nb-title">二次核对中，请稍等</h2>
+        <p>车辆可能需要约 5 秒更新参数。正在等待并重新读取实际配置，请保持车辆开机。</p>
+      </main>
+    </div>`;
+  }
+
+  function scanTemplate() {
+    const progress = state.screen === 'scan-progress';
+    return `<div class="nb-page">
+      ${header(progress ? '正在只读扫描' : '扫描结果', esc(state.scanModule || '车辆寄存器'), true)}
+      <main class="nb-content nb-center">
+        ${progress ? '<div class="nb-progress-ring" role="progressbar" aria-label="寄存器扫描中"></div>' : `<div class="nb-hero-check">${icon('circle-check')}</div>`}
+        <h2 class="nb-title">${progress ? esc(state.busyMessage || '正在连接车辆并读取寄存器') : (state.errorMessage ? '扫描未完成' : '只读扫描完成')}</h2>
+        <p>${progress ? '仅发送读取命令。请保持车辆开机并靠近手机，随时可以取消。' : (state.errorMessage ? esc(state.errorMessage) : `收到 ${state.scanReplies} 个寄存器响应，${state.scanTimeouts} 个地址未回复。请在开始下一次扫描前导出本次日志。`)}</p>
+        <section class="nb-section"><button class="nb-primary" type="button" data-action="${progress ? 'cancel-scan' : 'export-diag'}">${progress ? '取消扫描' : '导出扫描日志'}</button>
+        ${progress ? '' : '<button class="nb-secondary" style="margin-top:10px" type="button" data-action="settings">返回设置</button>'}</section>
+      </main>
+    </div>`;
+  }
+
+  function reviewTemplate() {
+    const resultBanner = state.modal ? '' : state.result === 'success'
+      ? `<div class="nb-alert success">${icon('circle-check')}<span><strong>写入并回读成功</strong><br>${state.writeType === 'dashboard' ? '仪表盘电压配置已回读。断电后是否保持，请重启车辆再确认。' : '计量模块电压与容量已更新，车辆断电重启后可能恢复。'}</span></div>`
+      : state.result === 'failure'
+      ? `<div class="nb-alert danger">${icon('circle-x')}<span><strong>本次写入未确认</strong><br>${esc(state.errorMessage || '请重新连接读取当前数据，再决定是否重试。')}</span></div>`
+      : '';
+    return `<div class="nb-page">
+      ${header('核对车辆信息', '确认数据无误后再写入', true)}
+      <main class="nb-content">
+        ${resultBanner}
+        <section class="nb-card ${resultBanner ? 'nb-section' : ''}">
+          <div class="nb-vehicle-card" style="padding:0;border:0;background:transparent">
+            <div class="nb-vehicle-icon">${icon('bike')}</div><div class="nb-grow"><div class="nb-value">${esc(maskedSn)}</div><div class="nb-label">${esc(state.vehicleModel)} · 蓝牙已连接</div></div><span class="nb-badge">${icon('bluetooth')}已连接</span>
+          </div>
+          <div class="nb-grid-3 nb-section">
+            <div class="nb-metric"><div class="nb-label">当前电量</div><div class="nb-value">${esc(state.soc)}%</div></div>
+            <div class="nb-metric"><div class="nb-label">电池电压</div><div class="nb-value">${esc(state.batteryVoltage)}</div></div>
+            <div class="nb-metric"><div class="nb-label">剩余容量</div><div class="nb-value">${esc(state.remainingCapacity)}</div></div>
+          </div>
+        </section>
+        <section class="nb-section">
+          <div class="nb-section-head"><h3 class="nb-section-title">校准配置</h3><p class="nb-section-note">当前读取结果</p></div>
+          <div class="nb-card nb-compare">
+            <div class="nb-compare-col"><div class="nb-label">仪表盘</div><div class="nb-compare-row"><span>校准电压</span><strong>${esc(state.dashboardVoltage)}</strong></div><div class="nb-compare-row"><span>校准容量</span><strong>${esc(state.dashboardCapacity)}</strong></div></div>
+            <div class="nb-compare-col"><div class="nb-label">计量模块</div><div class="nb-compare-row"><span>校准电压</span><strong>${esc(state.meterVoltage)}</strong></div><div class="nb-compare-row"><span>校准容量</span><strong>${esc(state.meterCapacity)}</strong></div></div>
+          </div>
+        </section>
+        <section class="nb-card nb-section"><div class="nb-info-list"><div class="nb-info-row"><span>仪表控制器</span><strong>${esc(state.dashboardFirmware)}</strong></div><div class="nb-info-row"><span>彩屏仪表</span><strong>${esc(state.colorDisplayFirmware)}</strong></div><div class="nb-info-row"><span>中控</span><strong>${esc(state.centreFirmware)}</strong></div><div class="nb-info-row"><span>计量模块</span><strong>${esc(state.meterFirmware)}</strong></div></div></section>
+        <div class="nb-alert warning nb-section">${icon('triangle-alert')}<span>本页读取结果仅供参考，请核对车辆实际配置；不能仅凭本页数据判断电池或车辆状态。</span></div>
+        <section class="nb-section">
+          <button class="nb-primary" type="button" data-action="write">${state.result ? '再次写入' : '进入参数写入'}</button>
+          <button class="nb-secondary" style="margin-top:10px" type="button" data-action="refresh-review">重新读取当前数据</button>
+        </section>
+      </main>
+      ${bottomNav('vehicle')}
+    </div>`;
+  }
+
+  function writeTemplate() {
+    const isDash = state.writeType === 'dashboard';
+    const writeBlocked = isDash ? !state.dashboardWriteSupported : !state.writeSupported;
+    const blockedReason = state.readOnlyVehicle
+      ? '此车仅支持读取，不会发送写入指令。'
+      : isDash
+      ? '仪表盘写入暂不可用。请查看版本要求与当前读取结果。'
+      : '计量模块写入条件未确认，请重新读取车辆信息。';
+    return `<div class="nb-page">
+      ${header('参数写入', `${esc(maskedSn)} · 当前 ${esc(state.meterVoltage)} / ${esc(state.meterCapacity)}`, true)}
+      <main class="nb-content">
+        <section>
+          <div class="nb-section-head"><h3 class="nb-section-title">选择写入位置</h3><p class="nb-section-note">作用范围不同</p></div>
+          <div class="nb-mode-list">
+            <button class="nb-mode ${isDash ? 'is-selected' : ''}" type="button" data-type="dashboard"><span class="nb-mode-dot"></span><span class="nb-grow"><span class="nb-mode-title">仪表盘电压写入 <span class="nb-lifetime">持久配置·高风险</span></span><span class="nb-mode-desc">只写入仪表盘电压配置；容量写入地址尚未确认。</span></span></button>
+            <button class="nb-mode ${!isDash ? 'is-selected' : ''}" type="button" data-type="meter"><span class="nb-mode-dot"></span><span class="nb-grow"><span class="nb-mode-title">计量模块参数写入 <span class="nb-temporary">临时生效</span></span><span class="nb-mode-desc">写入电压与容量，断电重启后可能恢复原值。</span></span></button>
+          </div>
+        </section>
+        <section class="nb-section">
+          <div class="nb-section-head"><h3 class="nb-section-title">选择目标电压</h3><p class="nb-section-note">48V / 60V / 72V</p></div>
+          <div class="nb-voltages">
+            ${[48,60,72].map(v => `<button class="nb-voltage ${state.voltage === v ? 'is-selected' : ''}" type="button" data-voltage="${v}">${v}V</button>`).join('')}
+          </div>
+        </section>
+        <section class="nb-section">
+          <div class="nb-section-head"><h3 class="nb-section-title">选择目标容量</h3><p class="nb-section-note">${isDash ? '仪表盘容量暂不可写' : '从小到大排列'}</p></div>
+          <div class="nb-capacities">
+            ${state.availableCapacities.map(v => `<button class="nb-capacity ${state.capacity === v ? 'is-selected' : ''}" type="button" data-capacity="${v}" ${isDash ? 'disabled' : ''}>${v}Ah</button>`).join('')}
+          </div>
+        </section>
+        <section class="nb-card nb-section nb-summary"><div><div class="nb-label">即将写入</div><strong>${isDash ? esc(state.dashboardVoltage) : `${esc(state.meterVoltage)} · ${esc(state.meterCapacity)}`} → ${state.voltage}V${isDash ? '' : ` · ${state.capacity}Ah`}</strong></div><span class="nb-chevron">${icon('arrow-right')}</span></section>
+        <div class="nb-alert ${isDash ? 'warning' : 'success'} nb-section">${icon(isDash ? 'triangle-alert' : 'rotate-ccw')}<span>${isDash ? '仪表盘配置可能在断电后持续生效，已有计量模块损坏案例。写入前会再次显示完整风险说明。' : '计量模块电压与容量写入后会回读，车辆断电重启后可能恢复原配置。'}</span></div>
+        ${writeBlocked ? `<div class="nb-alert danger nb-section">${icon('circle-x')}<span>${blockedReason}</span></div>` : ''}
+        ${writeBlocked && isDash && !state.readOnlyVehicle ? '<button class="nb-secondary" type="button" data-action="show-dashboard-requirements">查看不支持原因</button>' : ''}
+        <section class="nb-section"><button class="nb-primary" type="button" data-action="confirm-write" ${writeBlocked ? 'disabled' : ''}>${writeBlocked ? '当前不可写入' : '核对并写入'}</button></section>
+      </main>
+    </div>`;
+  }
+
+  function writeConfirmModal() {
+    const dash = state.writeType === 'dashboard';
+    return `<div class="nb-modal-layer" role="dialog" aria-modal="true" aria-label="写入前确认"><div class="nb-modal">
+      <div class="nb-modal-icon">${icon(dash ? 'shield-alert' : 'timer-reset')}</div>
+      <h3>确认写入 ${state.voltage}V${dash ? '' : ` · ${state.capacity}Ah`}？</h3>
+      <p>${dash ? '先重新读取并自动备份原参数，再阅读 30 秒高风险说明并二次确认。备份不保证能够恢复。' : '先重新读取并自动备份原参数，再阅读 3 秒临时写入风险提醒。断电重启后参数可能恢复。'}</p>
+      <div class="nb-card"><div class="nb-info-list"><div class="nb-info-row"><span>车辆</span><strong>${esc(maskedSn)}</strong></div><div class="nb-info-row"><span>写入位置</span><strong>${dash ? '仪表盘' : '计量模块'}</strong></div><div class="nb-info-row"><span>参数变化</span><strong>${dash ? esc(state.dashboardVoltage) : `${esc(state.meterVoltage)} · ${esc(state.meterCapacity)}`} → ${state.voltage}V${dash ? '' : ` · ${state.capacity}Ah`}</strong></div></div></div>
+      <div class="nb-btn-row"><button type="button" class="nb-secondary" data-action="close-modal">取消</button><button type="button" class="nb-primary" data-action="do-write">确认写入</button></div>
+    </div></div>`;
+  }
+
+  function dashboardRequirementsModal() {
+    const versions = [
+      ['仪表控制器', '2.5.9', state.dashboardFirmware],
+      ['彩屏仪表', '1.5.5', state.colorDisplayFirmware],
+      ['中控', '5.12.10', state.centreFirmware],
+      ['计量模块', '4.2.9', state.meterFirmware]
+    ];
+    return `<div class="nb-modal-layer" role="dialog" aria-modal="true" aria-label="仪表盘写入条件"><div class="nb-modal">
+      <div class="nb-modal-icon">${icon('shield-alert')}</div>
+      <h3>当前不可写入仪表盘</h3>
+      <p>四项固件须全部匹配，且仪表电压配置须读取成功。不满足时工具不会发送仪表盘写入命令。</p>
+      <div class="nb-fw-list">${versions.map(([name, expected, actual]) => `<div class="nb-fw-row"><span>${name}</span><strong>需 ${expected}</strong><em class="${actual === expected ? 'is-match' : ''}">当前 ${esc(actual)}</em></div>`).join('')}</div>
+      <p style="margin-top:12px">仪表当前电压：${esc(state.dashboardVoltage)}。计量模块临时写入有独立的读取与风险确认条件。</p>
+      <div class="nb-btn-row"><button type="button" class="nb-secondary" data-action="close-modal">返回</button><button type="button" class="nb-primary" data-action="refresh-review">重新读取</button></div>
+    </div></div>`;
+  }
+
+  function wakeModal() {
+    const pairing = state.path === 'pair';
+    return `<div class="nb-modal-layer" role="dialog" aria-modal="true" aria-label="车辆开机确认"><div class="nb-modal">
+      <div class="nb-modal-icon">${icon('power')}</div>
+      <h3>请先将车辆开机</h3>
+      <p>保持车辆在手机附近，并关闭其他正在连接车辆的应用或手机。</p>
+      <div class="nb-card"><div class="nb-info-list"><div class="nb-info-row"><span>车辆</span><strong>${esc(state.vehicleSn)}</strong></div><div class="nb-info-row"><span>下一步</span><strong>${pairing ? '发起配对' : '发起连接'}</strong></div></div></div>
+      <div class="nb-btn-row"><button type="button" class="nb-secondary" data-action="close-modal">取消</button><button type="button" class="nb-primary" data-action="wake-confirm">车辆已开机</button></div>
+    </div></div>`;
+  }
+
+  function officialAppModal() {
+    if (state.modal === 'missing-vehicle') {
+      return `<div class="nb-modal-layer" role="dialog" aria-modal="true" aria-label="未找到车辆"><div class="nb-modal">
+        <div class="nb-modal-icon">${icon('bike')}</div>
+        <h3>还没有可连接的车辆</h3>
+        <p>${state.rootMode ? '请先读取本机九号数据，或选择临时密钥配对。' : '可以先导入九号出行 APK 并用账号密码登录，也可以直接在车上确认临时密钥配对。'}</p>
+        <div class="nb-btn-row"><button type="button" class="nb-secondary" data-action="close-modal">返回</button><button type="button" class="nb-primary" data-action="${state.rootMode ? 'refresh-root' : 'goto-import'}">${state.rootMode ? '读取本机车辆' : '去导入 APK'}</button></div>
+        <button type="button" class="nb-secondary" style="margin-top:10px" data-action="pair-list">临时密钥配对</button>
+      </div></div>`;
+    }
+    if (state.modal === 'import-apk') {
+      return `<div class="nb-modal-layer" role="dialog" aria-modal="true" aria-label="导入九号出行 APK"><div class="nb-modal">
+        <div class="nb-modal-icon">${icon('package-plus')}</div>
+        <h3>导入九号出行 APK</h3>
+        <p>选择你自己准备的九号出行安装包。工具本身不内置九号出行。</p>
+        <div class="nb-card"><div class="nb-info-list"><div class="nb-info-row"><span>文件格式</span><strong>APK</strong></div><div class="nb-info-row"><span>导入后</span><strong>可打开登录</strong></div></div></div>
+        <div class="nb-btn-row"><button type="button" class="nb-secondary" data-action="close-modal">取消</button><button type="button" class="nb-primary" data-action="select-apk">选择 APK 文件</button></div>
+      </div></div>`;
+    }
+    if (state.modal === 'login-ninebot' && !state.officialImported) {
+      return `<div class="nb-modal-layer" role="dialog" aria-modal="true" aria-label="请先导入九号出行"><div class="nb-modal">
+        <div class="nb-modal-icon">${icon('package-open')}</div>
+        <h3>请先导入九号出行 APK</h3>
+        <p>当前工具没有内置九号出行。完成导入后，再使用账号密码登录。</p>
+        <div class="nb-btn-row"><button type="button" class="nb-secondary" data-action="close-modal">取消</button><button type="button" class="nb-primary" data-action="goto-import">去导入</button></div>
+      </div></div>`;
+    }
+    return `<div class="nb-modal-layer" role="dialog" aria-modal="true" aria-label="登录九号出行"><div class="nb-modal">
+      <div class="nb-modal-icon">${icon('log-in')}</div>
+      <h3>登录九号出行</h3>
+      <p>请使用账号密码登录。登录完成后返回 BFG 电量校准，再连接车辆。</p>
+      <div class="nb-card"><div class="nb-info-list"><div class="nb-info-row"><span>九号出行</span><strong>已导入</strong></div><div class="nb-info-row"><span>登录方式</span><strong>账号密码</strong></div></div></div>
+      <div class="nb-btn-row"><button type="button" class="nb-secondary" data-action="close-modal">取消</button><button type="button" class="nb-primary" data-action="launch-ninebot">打开九号出行</button></div>
+    </div></div>`;
+  }
+
+  function statusModal() {
+    const kind = state.modal;
+    const specs = {
+      'bluetooth-off': ['bluetooth', '蓝牙尚未开启', state.errorMessage || '请打开系统蓝牙后返回重试。', '打开蓝牙设置', 'open-bluetooth-settings', '稍后', 'close-modal'],
+      'permission-needed': ['shield-alert', '需要蓝牙相关权限', state.errorMessage || '请允许位置和附近设备权限后重试。', '我知道了', 'close-modal', '', ''],
+      'auth-repair': ['key-round', '车辆认证没有回应', state.errorMessage || '检查其他应用或手机是否占用车辆蓝牙，然后重试。', state.screen === 'pair-ready' ? '重新尝试配对' : '重试连接', state.screen === 'pair-ready' ? 'begin-pair' : 'retry-connect', '稍后', 'close-modal'],
+      'write-success': ['circle-check', '写入成功，二次核对完成', state.errorMessage || '已重新读取车辆参数。恢复原参数请到“设置 → 参数备份与恢复”。', '查看车辆信息', 'close-modal', '去设置恢复', 'settings'],
+      'write-failure': ['circle-x', '写入未完成', state.errorMessage || '请重新读取当前参数，再决定是否重试。', '再次尝试', 'retry-write', '取消', 'close-modal'],
+      'verification-incomplete': ['triangle-alert', '二次核对未完成', state.errorMessage || '先重新读取参数，确认前不要重复写入。', '重新核对', 'post-write-reread', '取消', 'close-modal'],
+      'restore-unavailable': ['triangle-alert', '暂时无法恢复', state.errorMessage || '请先核对车辆与备份，再重新尝试。', '知道了', 'close-modal', '', ''],
+      'scan-unavailable': ['triangle-alert', '扫描未完成', state.errorMessage || '请检查车辆连接后再试。', '我知道了', 'close-modal', '', ''],
+      'read-advisory': ['triangle-alert', '读取结果仅供参考', state.errorMessage || '请核对车辆实际配置。', '我知道了', 'close-modal', '', ''],
+      'unverified-dis': ['triangle-alert', '仪表配置尚未验证', state.errorMessage || '这组仪表配置尚无实车验证，请确认可以恢复原参数后继续。', '仍要尝试写入', 'confirm-unverified-dis', '取消', 'close-modal']
+    };
+    const item = specs[kind];
+    if (!item) return '';
+    return `<div class="nb-modal-layer" role="dialog" aria-modal="true" aria-label="${esc(item[1])}"><div class="nb-modal">
+      <div class="nb-modal-icon">${icon(item[0])}</div><h3>${esc(item[1])}</h3><p>${esc(item[2])}</p>
+      ${kind === 'auth-repair' && state.screen !== 'pair-ready' ? `<button type="button" class="nb-secondary" style="margin-top:12px" data-action="start-repair">重新配对（需车端确认）</button>` : ''}
+      <div class="nb-btn-row"><button type="button" class="nb-primary" data-action="${item[4]}">${item[3]}</button>${item[5] ? `<button type="button" class="nb-secondary" data-action="${item[6]}">${item[5]}</button>` : ''}</div>
+    </div></div>`;
+  }
+
+  function render() {
+    root.style.setProperty('--nb-radius', `${state.radius}px`);
+    root.style.setProperty('--nb-accent', state.accent);
+    root.dataset.dark = state.dark ? 'true' : 'false';
+    maskedSn = state.vehicleSn.length > 8
+      ? `${state.vehicleSn.slice(0, 4)}••••${state.vehicleSn.slice(-5)}` : state.vehicleSn;
+    root.querySelector('.nb-phone').style.fontSize = state.compact ? '14px' : '16px';
+    let html;
+    if (state.screen === 'vehicles') html = vehiclesTemplate();
+    else if (state.screen === 'settings') html = settingsTemplate();
+    else if (state.screen === 'pair-list') html = vehicleListTemplate();
+    else if (state.screen === 'pair-ready') html = readyTemplate(true);
+    else if (state.screen === 'connect-ready') html = readyTemplate(false);
+    else if (state.screen === 'pair-progress') html = progressTemplate(true);
+    else if (state.screen === 'connect-progress') html = progressTemplate(false);
+    else if (state.screen === 'write-progress') html = writeProgressTemplate();
+    else if (state.screen === 'post-write-check') html = postWriteCheckTemplate();
+    else if (state.screen === 'scan-progress' || state.screen === 'scan-result') html = scanTemplate();
+    else if (state.screen === 'review') html = reviewTemplate();
+    else if (state.screen === 'write') html = writeTemplate();
+    else html = homeTemplate();
+    screen.innerHTML = `<div class="nb-page-wrap">${html}${state.modal === 'wake' ? wakeModal() : state.modal === 'write-confirm' ? writeConfirmModal() : state.modal === 'dashboard-requirements' ? dashboardRequirementsModal() : state.modal === 'import-apk' || state.modal === 'login-ninebot' || state.modal === 'missing-vehicle' ? officialAppModal() : statusModal()}</div>`;
+    const modalVisibility = state.modal ? 'open' : 'closed';
+    if (modalVisibility !== lastModalVisibility) {
+      lastModalVisibility = modalVisibility;
+      nativeAction('modal-state', modalVisibility);
+    }
+    root.querySelectorAll('[data-preview]').forEach(btn => btn.classList.toggle('is-active', btn.dataset.preview === (state.result || state.screen)));
+    if (globalThis.lucide) globalThis.lucide.createIcons({ attrs: { width: 16, height: 16 } });
+  }
+
+  function go(screenName) { state.screen = screenName; state.modal = null; render(); save(); nativeAction('screen', screenName); }
+  function showWake(path) { state.path = path; state.modal = 'wake'; render(); save(); }
+  function completeConnection(pairing) {
+    state.result = null;
+    state.errorMessage = '';
+    state.busyMessage = '';
+    go(pairing ? 'pair-progress' : 'connect-progress');
+    if (window.BfgNative) nativeAction(pairing ? 'begin-pair' : 'begin-connect', pairing ? String(state.selectedPairIndex ?? '') : '');
+    else window.setTimeout(() => { if (state.screen.endsWith('progress')) go('review'); }, 900);
+  }
+  function completeWrite(result) {
+    state.result = result;
+    go('review');
+  }
+
+  root.addEventListener('click', event => {
+    const preview = event.target.closest('[data-preview]');
+    if (preview) {
+      const p = preview.dataset.preview;
+      if (p === 'success' || p === 'failure') { state.result = p; go('review'); }
+      else { state.result = null; go(p); }
+      return;
+    }
+    const type = event.target.closest('[data-type]');
+    if (type) { state.writeType = type.dataset.type; render(); save(); return; }
+    const voltage = event.target.closest('[data-voltage]');
+    if (voltage) {
+      state.voltage = Number(voltage.dataset.voltage);
+      const options = state.capacityByVoltage[String(state.voltage)] || state.availableCapacities;
+      if (Array.isArray(options) && options.length) {
+        state.availableCapacities = options;
+        if (!options.includes(state.capacity)) state.capacity = options.find(v => v >= state.capacity) || options[options.length - 1];
+      }
+      render(); save(); return;
+    }
+    const cap = event.target.closest('[data-capacity]');
+    if (cap) { state.capacity = Number(cap.dataset.capacity); render(); save(); return; }
+    const actionEl = event.target.closest('[data-action]');
+    if (!actionEl) return;
+    const action = actionEl.dataset.action;
+    if (action === 'home') { if (window.BfgNative) nativeAction('cancel'); if (window.BfgNative && state.screen === 'write-progress') return; state.result = null; go('home'); }
+    else if (action === 'back') { if (state.screen === 'post-write-check') return; if (window.BfgNative && state.screen.endsWith('progress')) nativeAction('cancel'); if (window.BfgNative && state.screen === 'write-progress') return; go(state.screen === 'scan-result' || state.screen === 'scan-progress' ? 'settings' : state.screen === 'write' ? 'review' : 'home'); }
+    else if (action === 'vehicles' || action === 'settings') { go(action); }
+    else if (action === 'select-vehicle') { state.selectedVehicleIndex = Number(actionEl.dataset.index); if (window.BfgNative) nativeAction('select-vehicle', String(state.selectedVehicleIndex)); go('home'); }
+    else if (action === 'refresh-vehicles') { if (window.BfgNative) nativeAction('refresh-vehicles'); }
+    else if (action === 'set-root') { state.rootMode = actionEl.dataset.value === 'true'; render(); if (window.BfgNative) nativeAction('set-root', String(state.rootMode)); }
+    else if (action === 'toggle-fallback') { state.rootFallback = !state.rootFallback; render(); if (window.BfgNative) nativeAction('set-fallback', String(state.rootFallback)); }
+    else if (action === 'import-root') { if (window.BfgNative) nativeAction('import-root'); }
+    else if (action === 'export-diag' || action === 'show-license' || action === 'clear-data'
+             || action === 'restore-first' || action === 'restore-prewrite') { if (window.BfgNative) nativeAction(action); }
+    else if (action === 'scan-dis' || action === 'scan-bfg') { state.scanModule = action === 'scan-dis' ? '仪表盘' : '计量模块'; state.errorMessage = ''; state.scanReplies = 0; state.scanTimeouts = 0; go('scan-progress'); if (window.BfgNative) nativeAction(action); }
+    else if (action === 'cancel-scan') { if (window.BfgNative) nativeAction('cancel'); go('settings'); }
+    else if (action === 'open-import') { state.modal = 'import-apk'; render(); save(); }
+    else if (action === 'open-login') { state.modal = 'login-ninebot'; render(); save(); }
+    else if (action === 'show-dashboard-requirements') { state.modal = 'dashboard-requirements'; render(); }
+    else if (action === 'goto-import') { state.modal = 'import-apk'; render(); save(); }
+    else if (action === 'select-apk') { if (window.BfgNative) nativeAction('select-apk'); else state.officialImported = true; state.modal = null; render(); save(); }
+    else if (action === 'launch-ninebot') { state.modal = null; render(); save(); if (window.BfgNative) nativeAction('launch-ninebot'); }
+    else if (action === 'refresh-root') { state.modal = null; render(); if (window.BfgNative) nativeAction('refresh-root'); }
+    else if (action === 'pair-list') { go('pair-list'); if (window.BfgNative) nativeAction('pair-scan'); }
+    else if (action === 'pair-select') { const index = Number(actionEl.dataset.index); state.selectedPairIndex = index; const vehicle = state.vehicles[index]; if (vehicle) state.vehicleSn = vehicle.sn; if (window.BfgNative) nativeAction('pair-select', String(index)); showWake('pair'); }
+    else if (action === 'connect-start') { if (window.BfgNative && !state.vehicleSn) { state.modal = 'missing-vehicle'; render(); } else showWake('connect'); }
+    else if (action === 'wake-confirm') go(state.path === 'pair' ? 'pair-ready' : 'connect-ready');
+    else if (action === 'close-modal') { state.modal = null; render(); save(); }
+    else if (action === 'open-bluetooth-settings') { state.modal = null; render(); if (window.BfgNative) nativeAction('open-bluetooth-settings'); }
+    else if (action === 'retry-connect') { state.modal = null; completeConnection(false); }
+    else if (action === 'start-repair') { state.modal = null; render(); if (window.BfgNative) nativeAction('start-repair'); else go('pair-list'); }
+    else if (action === 'retry-write') {
+      const target = JSON.stringify({type:state.writeType,voltage:state.voltage,capacity:state.capacity});
+      state.modal = null; state.result = null; state.writeStage = 'precheck'; go('connect-progress');
+      if (window.BfgNative) nativeAction('retry-write', target);
+      else window.setTimeout(() => { go('write'); state.modal = 'write-confirm'; render(); }, 500);
+    }
+    else if (action === 'post-write-reread') { state.modal = null; go('post-write-check'); if (window.BfgNative) nativeAction('post-write-reread'); }
+    else if (action === 'confirm-unverified-dis') { state.modal = null; state.writeStage = 'precheck'; go('write-progress'); if (window.BfgNative) nativeAction('confirm-unverified-dis'); }
+    else if (action === 'begin-pair') completeConnection(true);
+    else if (action === 'begin-connect') completeConnection(false);
+    else if (action === 'write') go('write');
+    else if (action === 'refresh-review') { state.result = null; go('connect-progress'); if (window.BfgNative) nativeAction('refresh-read'); }
+    else if (action === 'confirm-write') {
+      if (state.writeType === 'dashboard' && !state.dashboardWriteSupported) return;
+      if (state.writeType === 'meter' && !state.writeSupported) return;
+      state.modal = 'write-confirm'; render(); save();
+    }
+    else if (action === 'do-write') {
+      state.modal = null;
+      state.result = null;
+      state.errorMessage = '';
+      state.writeStage = 'precheck';
+      go('write-progress');
+      if (window.BfgNative) nativeAction('do-write', JSON.stringify({type:state.writeType,voltage:state.voltage,capacity:state.capacity}));
+      else window.setTimeout(() => completeWrite('success'), 900);
+    }
+  });
+
+  window.bfgNativeUpdate = function(json) {
+    const update = typeof json === 'string' ? JSON.parse(json) : json;
+    Object.assign(state, update);
+    if (update.screen) { state.screen = update.screen; nativeAction('screen', update.screen); }
+    if (update.result && !Object.prototype.hasOwnProperty.call(update, 'modal')) state.modal = null;
+    render();
+  };
+  window.bfgNativeGo = function(screenName) { go(screenName); };
+
+  render();
+  if (globalThis.Tweak) {
+    const tweak = new Tweak({ container: root.querySelector('.nb-phone'), onChange: render });
+    tweak.addSlider(state, 'radius', { label: '卡片圆角', min: 14, max: 30, unit: 'px', reference: '--nb-radius' });
+    tweak.addColorPicker(state, 'accent', { label: '主色', reference: '--nb-accent' });
+    tweak.addToggle(state, 'compact', { label: '紧凑排版', reference: 'layout.compact' });
+  }
+})();
+</script>
+</body></html>

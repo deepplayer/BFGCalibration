@@ -1,0 +1,6 @@
+# Copy this file to release-signing.properties and fill in the permanent
+# release signing key details. Never commit the real file or the key store.
+storeFile=../signing/BFGCalibration-release.jks
+storePassword=CHANGE_ME
+keyAlias=bfg-calibration
+keyPassword=CHANGE_ME

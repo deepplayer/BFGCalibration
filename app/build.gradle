@@ -1,0 +1,164 @@
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.jetbrains.kotlin.android)
+}
+
+def releaseSigningFile = rootProject.file("release-signing.properties")
+def releaseSigningProperties = new Properties()
+def releaseSigningReady = releaseSigningFile.exists()
+if (releaseSigningReady) {
+    releaseSigningFile.withInputStream { releaseSigningProperties.load(it) }
+    def requiredKeys = ["storeFile", "storePassword", "keyAlias", "keyPassword"]
+    def missingKeys = requiredKeys.findAll {
+        !releaseSigningProperties.getProperty(it)?.trim()
+    }
+    if (!missingKeys.isEmpty()) {
+        throw new GradleException("release-signing.properties 缺少字段: ${missingKeys.join(', ')}")
+    }
+}
+
+android {
+
+    namespace 'com.onebitmonochrome.blacksbbox'
+    compileSdk rootProject.ext.compileSdkVersion
+    ndkVersion = "29.0.13846066"
+    defaultConfig {
+        applicationId "com.bfgtools.calibration.imported"
+        minSdk rootProject.ext.minSdk
+        targetSdk rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        splits {
+            abi {
+                enable true
+                reset()
+                
+                include 'armeabi-v7a', "arm64-v8a"
+                universalApk true
+            }
+        }
+    }
+
+    signingConfigs {
+        release {
+            if (releaseSigningReady) {
+                storeFile rootProject.file(releaseSigningProperties.getProperty("storeFile"))
+                storePassword releaseSigningProperties.getProperty("storePassword")
+                keyAlias releaseSigningProperties.getProperty("keyAlias")
+                keyPassword releaseSigningProperties.getProperty("keyPassword")
+                enableV1Signing true
+                enableV2Signing true
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            if (releaseSigningReady) {
+                signingConfig signingConfigs.release
+            }
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+    buildFeatures {
+        viewBinding true
+        buildConfig true
+    }
+    sourceSets {
+        main {
+            assets.srcDir(layout.buildDirectory.dir("generated/blackboxGalleryAssets"))
+        }
+    }
+    kotlinOptions {
+        jvmTarget = '21'
+    }
+
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach { output ->
+            output.outputFileName = "BFGCalibration_${variant.versionName}_${output.baseName}.apk"
+        }
+    }
+}
+
+tasks.register("verifyReleaseSigning") {
+    doLast {
+        if (!releaseSigningReady) {
+            throw new GradleException(
+                    "正式版缺少 release-signing.properties 和固定发布密钥；禁止使用调试证书发布。")
+        }
+    }
+}
+
+tasks.configureEach { task ->
+    if (task.name == "packageRelease" || task.name == "bundleRelease") {
+        task.dependsOn("verifyReleaseSigning")
+    }
+}
+
+def blackBoxGalleryAssetsDir = layout.buildDirectory.dir("generated/blackboxGalleryAssets")
+
+tasks.register("copyBlackBoxGuestGalleryApk", Copy) {
+    dependsOn(":blackbox-gallery-stub:assembleDebug")
+    from("$rootDir/blackbox-gallery-stub/build/outputs/apk/debug") {
+        include("*.apk")
+        rename { "blackbox-gallery-stub.apk" }
+    }
+    into(blackBoxGalleryAssetsDir)
+}
+
+tasks.named("preBuild").configure {
+    dependsOn("copyBlackBoxGuestGalleryApk")
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar", "*.aar"])
+    implementation project(':Bcore')
+
+    implementation libs.appcompat
+    implementation libs.material
+    implementation libs.constraintlayout
+    implementation libs.core.ktx
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+    androidTestImplementation "androidx.test:core:1.6.1"
+
+    implementation "androidx.preference:preference-ktx:1.1.1"
+    
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.3.1"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.1"
+
+    
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'com.gitee.cbfg5210:RVAdapter:0.3.7'
+
+    
+    implementation 'com.github.Othershe:CornerLabelView:1.0.0'
+    
+    implementation 'com.github.nukc.stateview:kotlin:2.2.0'
+    
+    implementation 'com.github.Ferfalk:SimpleSearchView:0.2.0'
+    implementation 'com.tbuonomo:dotsindicator:4.2'
+    
+    implementation 'org.osmdroid:osmdroid-android:6.1.11'
+    
+    implementation 'com.afollestad.material-dialogs:core:3.3.0'
+    implementation 'com.afollestad.material-dialogs:input:3.3.0'
+
+
+
+
+
+    
+    implementation 'androidx.work:work-runtime:2.7.1'
+
+}

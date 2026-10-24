@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_ninebot_home"
+        android:icon="@drawable/ic_ninebot_home"
+        android:title="@string/ninebot_nav_home" />
+    <item
+        android:id="@+id/nav_ninebot_vehicles"
+        android:icon="@drawable/ic_ninebot_vehicle"
+        android:title="@string/ninebot_nav_vehicles" />
+    <item
+        android:id="@+id/nav_ninebot_settings"
+        android:icon="@drawable/ic_ninebot_settings"
+        android:title="@string/ninebot_nav_settings" />
+</menu>

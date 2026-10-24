@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#1F2937</color>
+    <color name="primary_dark">#111827</color>
+    <color name="primary_light">#4B5563</color>
+    <color name="accent">#ffffff</color>
+    <color name="primary_text">#111827</color>
+    <color name="secondary_text">#6B7280</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="background">#F4F7FB</color>
+    <color name="surface">#FFFFFFFF</color>
+    <color name="surface_variant">#E5ECF6</color>
+    <color name="on_surface">#0F172A</color>
+    <color name="fab_tint">#0EA5E9</color>
+    <color name="ic_launcher_adaptive_bg">#FFFFFF</color>
+
+    <!-- Ninebot tool palette: isolated so the screen can be redesigned independently. -->
+    <color name="ninebot_background">#F4F7FB</color>
+    <color name="ninebot_surface">#FFFFFFFF</color>
+    <color name="ninebot_surface_soft">#EEF4FF</color>
+    <color name="ninebot_line">#E1E8F0</color>
+    <color name="ninebot_text">#172033</color>
+    <color name="ninebot_muted">#667085</color>
+    <color name="ninebot_blue">#2563EB</color>
+    <color name="ninebot_blue_dark">#1D4ED8</color>
+    <color name="ninebot_on_blue">#FFFFFFFF</color>
+    <color name="ninebot_good">#16723A</color>
+    <color name="ninebot_good_soft">#EAF8EF</color>
+    <color name="ninebot_warning">#A84C08</color>
+    <color name="ninebot_warning_soft">#FFF3E4</color>
+    <color name="ninebot_danger">#D92D20</color>
+    <color name="ninebot_danger_soft">#FEE4E2</color>
+</resources>

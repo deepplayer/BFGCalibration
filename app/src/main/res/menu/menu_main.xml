@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <item
+        android:id="@+id/ninebot_bfg_tool"
+        android:title="@string/ninebot_bfg_tool"
+        app:showAsAction="never" />
+
+    <item
+            android:id="@+id/main_setting"
+            android:title="@string/setting"
+            app:showAsAction="never" />
+
+    <item
+        android:id="@+id/fake_location"
+        android:title="@string/fake_location"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/device_spoofing"
+        android:title="@string/device_spoofing"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/blackbox_gallery"
+        android:title="@string/blackbox_gallery_menu"
+        app:showAsAction="never" />
+</menu>
