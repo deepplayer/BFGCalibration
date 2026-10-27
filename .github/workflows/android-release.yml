@@ -1,23 +1,31 @@
-name: Android Build
+name: Android Release
 
+# 手动触发，不随 push 自动构建。
+# 只构建 release 变体，构建完成后把 APK 挂到 GitHub Release。
 on:
-  push:
-    branches: [ main ]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
     inputs:
-      build_release:
-        description: 'Build release APK (requires signing secrets)'
+      tag:
+        description: 'Release tag, e.g. v5.0.35. Leave empty to use versionName from build.gradle'
+        required: false
+        type: string
+      draft:
+        description: 'Create as draft release'
+        required: false
+        type: boolean
+        default: false
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
         type: boolean
         default: false
 
+permissions:
+  contents: write
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   GRADLE_OPTS: >-
@@ -30,8 +38,8 @@ env:
   ANDROID_NDK_VERSION: "29.0.13846066"
 
 jobs:
-  build:
-    name: Assemble APK
+  release:
+    name: Build Release APK
     runs-on: ubuntu-latest
     timeout-minutes: 90
 
@@ -49,11 +57,8 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Cache Android SDK and NDK
-        id: cache-android-sdk
         uses: actions/cache@v4
         with:
           path: |
@@ -104,22 +109,10 @@ jobs:
           echo "ANDROID_NDK_HOME=$SDK_ROOT/ndk/${ANDROID_NDK_VERSION}" >> "$GITHUB_ENV"
           echo "ANDROID_NDK_ROOT=$SDK_ROOT/ndk/${ANDROID_NDK_VERSION}" >> "$GITHUB_ENV"
 
-          # Persist the NDK symlink layout used by cached runs.
           mkdir -p "$NDK_ROOT"
           ln -sfn "$SDK_ROOT/ndk/${ANDROID_NDK_VERSION}" "$NDK_ROOT/${ANDROID_NDK_VERSION}" || true
 
-      - name: Show toolchain versions
-        shell: bash
-        run: |
-          set -euo pipefail
-          java -version
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --version
-          ls -1 "$ANDROID_HOME/ndk"
-          chmod +x ./gradlew
-          ./gradlew --version
-
-      - name: Prepare optional release signing
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_release }}
+      - name: Restore release signing config
         shell: bash
         env:
           KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
@@ -128,50 +121,92 @@ jobs:
           KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: |
           set -euo pipefail
-          if [ -z "${KEYSTORE_BASE64:-}" ]; then
-            echo "::error::RELEASE_KEYSTORE_BASE64 secret is not configured."
+          missing=()
+          [ -n "${KEYSTORE_BASE64:-}" ] || missing+=("RELEASE_KEYSTORE_BASE64")
+          [ -n "${STORE_PASSWORD:-}" ]  || missing+=("RELEASE_STORE_PASSWORD")
+          [ -n "${KEY_ALIAS:-}" ]       || missing+=("RELEASE_KEY_ALIAS")
+          [ -n "${KEY_PASSWORD:-}" ]    || missing+=("RELEASE_KEY_PASSWORD")
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing repository secrets: ${missing[*]}"
             exit 1
           fi
+
           mkdir -p signing
-          echo "$KEYSTORE_BASE64" | base64 -d > signing/BFGCalibration-release.jks
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > signing/release.jks
+          umask 077
           cat > release-signing.properties <<EOF
-          storeFile=signing/BFGCalibration-release.jks
+          storeFile=signing/release.jks
           storePassword=${STORE_PASSWORD}
           keyAlias=${KEY_ALIAS}
           keyPassword=${KEY_PASSWORD}
           EOF
-
-      - name: Build debug APKs
-        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.build_release) }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          ./gradlew :app:assembleDebug --stacktrace --warning-mode summary
+          echo "Release signing config restored."
 
       - name: Build release APKs
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_release }}
         shell: bash
         run: |
           set -euo pipefail
+          chmod +x ./gradlew
           ./gradlew :app:assembleRelease --stacktrace --warning-mode summary
 
-      - name: Collect APKs
-        if: ${{ always() }}
+      - name: Resolve version and collect APKs
+        id: collect
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p ci-artifacts
-          find app/build/outputs -type f -name '*.apk' -print -exec cp {} ci-artifacts/ \; 2>/dev/null || true
-          ls -la ci-artifacts || true
+          VERSION_NAME=$(sed -n "s/.*versionName = ['\"]\(.*\)['\"].*/\1/p" build.gradle | head -1)
+          VERSION_CODE=$(sed -n "s/.*versionCode = \([0-9]*\).*/\1/p" build.gradle | head -1)
+          [ -n "$VERSION_NAME" ] || { echo "::error::Cannot read versionName from build.gradle"; exit 1; }
 
-      - name: Upload APK artifacts
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v4
+          TAG="${{ inputs.tag }}"
+          [ -n "$TAG" ] || TAG="v${VERSION_NAME}"
+
+          mkdir -p dist
+          find app/build/outputs/apk/release -type f -name '*.apk' -exec cp {} dist/ \;
+          COUNT=$(find dist -maxdepth 1 -name '*.apk' | wc -l)
+          [ "$COUNT" -gt 0 ] || { echo "::error::No release APK produced"; exit 1; }
+
+          echo "version_name=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Collected $COUNT APK(s) for tag $TAG (versionName=$VERSION_NAME)"
+          ls -lh dist
+
+      - name: Verify signing of release APKs
+        shell: bash
+        run: |
+          set -euo pipefail
+          APKSIGNER="$ANDROID_HOME/build-tools/${ANDROID_BUILD_TOOLS}/apksigner"
+          for apk in dist/*.apk; do
+            echo "== $apk"
+            "$APKSIGNER" verify --print-certs "$apk" | head -5
+          done
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: BFGCalibration-apk-${{ github.sha }}
-          path: ci-artifacts/*.apk
-          if-no-files-found: warn
-          retention-days: 14
+          tag_name: ${{ steps.collect.outputs.tag }}
+          name: BFG电量校准 ${{ steps.collect.outputs.version_name }}
+          target_commitish: ${{ github.sha }}
+          draft: ${{ inputs.draft }}
+          prerelease: ${{ inputs.prerelease }}
+          files: dist/*.apk
+          fail_on_unmatched_files: true
+          body: |
+            BFG 电量校准 ${{ steps.collect.outputs.version_name }}（versionCode ${{ steps.collect.outputs.version_code }}）
+
+            - commit: `${{ github.sha }}`
+            - 构建时间: ${{ github.event.repository.updated_at }}
+            - 签名: release keystore（CI secrets 注入）
+
+            安装包：
+            - `BFGCalibration_${{ steps.collect.outputs.version_name }}_universal.apk` — 通用包，推荐
+            - `BFGCalibration_${{ steps.collect.outputs.version_name }}_arm64-v8a.apk` — 64 位 ARM
+            - `BFGCalibration_${{ steps.collect.outputs.version_name }}_armeabi-v7a.apk` — 32 位 ARM
+
+            最低 Android 12（API 31）。
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload build reports on failure
         if: ${{ failure() }}
